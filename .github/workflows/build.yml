@@ -43,8 +43,8 @@ jobs:
                   mavenCentral()
               }
               dependencies {
-                  classpath "com.android.tools.build:gradle:7.4.2"
-                  classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.0"
+                  classpath "com.android.tools.build:gradle:8.1.0"
+                  classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0"
               }
           }
           allprojects {
@@ -67,11 +67,11 @@ jobs:
           }
           android {
               namespace 'com.example.pooloverlay'
-              compileSdk 33
+              compileSdk 34
               defaultConfig {
                   applicationId "com.example.pooloverlay"
                   minSdk 24
-                  targetSdk 33
+                  targetSdk 34
                   versionCode 1
                   versionName "1.0"
               }
@@ -84,17 +84,15 @@ jobs:
               }
           }
           dependencies {
-              implementation 'androidx.core:core-ktx:1.9.0'
-              implementation 'androidx.appcompat:appcompat:1.6.0'
-              implementation 'com.google.android.material:material:1.8.0'
+              implementation 'androidx.core:core-ktx:1.12.0'
+              implementation 'androidx.appcompat:appcompat:1.6.1'
+              implementation 'com.google.android.material:material:1.9.0'
           }
           EOF
-          gradle wrapper --gradle-version 7.5
 
       - name: Build APK with Gradle
         run: |
-          chmod +x gradlew
-          ./gradlew assembleDebug
+          gradle assembleDebug
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
