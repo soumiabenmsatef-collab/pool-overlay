@@ -34,8 +34,27 @@ jobs:
           if [ -f OverlayView.kt ]; then mv OverlayView.kt app/src/main/java/com/example/pooloverlay/; fi
           if [ -f AndroidManifest.xml ]; then mv AndroidManifest.xml app/src/main/res/; fi
 
-      - name: Write Gradle Configuration Files
+      - name: Write All Gradle Files
         run: |
+          cat << 'EOF' > build.gradle
+          buildscript {
+              repositories {
+                  google()
+                  mavenCentral()
+              }
+              dependencies {
+                  classpath "com.android.tools.build:gradle:8.1.0"
+                  classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0"
+              }
+          }
+          allprojects {
+              repositories {
+                  google()
+                  mavenCentral()
+              }
+          }
+          EOF
+
           cat << 'EOF' > settings.gradle
           include ':app'
           rootProject.name = 'PoolOverlay'
