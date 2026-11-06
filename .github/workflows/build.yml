@@ -27,14 +27,14 @@ jobs:
           mkdir -p app/src/main/java/com/example/pooloverlay
           mkdir -p app/src/main/res
 
-      - name: تأكد من مكان التجميع في الهيكل البرمجي
+      - name: Move Files to Structure
         run: |
           if [ -f MainActivity.kt ]; then mv MainActivity.kt app/src/main/java/com/example/pooloverlay/; fi
           if [ -f FloatingService.kt ]; then mv FloatingService.kt app/src/main/java/com/example/pooloverlay/; fi
           if [ -f OverlayView.kt ]; then mv OverlayView.kt app/src/main/java/com/example/pooloverlay/; fi
           if [ -f AndroidManifest.xml ]; then mv AndroidManifest.xml app/src/main/res/; fi
 
-      - name: إشراي الجميع لتطبيق build.gradle
+      - name: Generate Gradle Files
         run: |
           cat << 'EOF' > build.gradle
           buildscript {
@@ -43,8 +43,8 @@ jobs:
                   mavenCentral()
               }
               dependencies {
-                  classpath "com.android.tools.build:gradle:8.1.0"
-                  classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0"
+                  classpath "com.android.tools.build:gradle:7.4.2"
+                  classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.0"
               }
           }
           allprojects {
@@ -67,11 +67,11 @@ jobs:
           }
           android {
               namespace 'com.example.pooloverlay'
-              compileSdk 34
+              compileSdk 33
               defaultConfig {
                   applicationId "com.example.pooloverlay"
                   minSdk 24
-                  targetSdk 34
+                  targetSdk 33
                   versionCode 1
                   versionName "1.0"
               }
@@ -84,17 +84,17 @@ jobs:
               }
           }
           dependencies {
-              implementation 'androidx.core:core-ktx:1.12.0'
-              implementation 'androidx.appcompat:appcompat:1.6.1'
-              implementation 'com.google.android.material:material:1.9.0'
+              implementation 'androidx.core:core-ktx:1.9.0'
+              implementation 'androidx.appcompat:appcompat:1.6.0'
+              implementation 'com.google.android.material:material:1.8.0'
           }
           EOF
+          gradle wrapper --gradle-version 7.5
 
       - name: Build APK with Gradle
         run: |
-          gradle wrapper
-          chmod +x gradlew || true
-          ./gradlew assembleDebug || gradle assembleDebug
+          chmod +x gradlew
+          ./gradlew assembleDebug
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
