@@ -10,9 +10,39 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
       - uses: android-actions/setup-android@v4
-      - name: Build with Gradle
+      - name: Setup Project and Build
         run: |
-          gradle wrapper
+          mkdir -p app/src/main/java/com/example/pooloverlay app/src/main/res
+          if [ -f MainActivity.kt ]; then mv MainActivity.kt app/src/main/java/com/example/pooloverlay/; fi
+          if [ -f FloatingService.kt ]; then mv FloatingService.kt app/src/main/java/com/example/pooloverlay/; fi
+          if [ -f OverlayView.kt ]; then mv OverlayView.kt app/src/main/java/com/example/pooloverlay/; fi
+          if [ -f AndroidManifest.xml ]; then mv AndroidManifest.xml app/src/main/res/; fi
+          
+          echo "include ':app'" > settings.gradle
+          echo "rootProject.name = 'PoolOverlay'" >> settings.gradle
+          
+          cat << 'EOF' > build.gradle
+          buildscript {
+              repositories { google(); mavenCentral() }
+              dependencies { classpath "com.android.tools.build:gradle:7.4.2"; classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.0" }
+          }
+          allprojects { repositories { google(); mavenCentral() } }
+          EOF
+
+          cat << 'EOF' > app/build.gradle
+          plugins { id 'com.android.application'; id 'org.jetbrains.kotlin.android' }
+          android {
+              namespace 'com.example.pooloverlay'
+              compileSdk 33
+              defaultConfig { applicationId "com.example.pooloverlay"; minSdk 24; targetSdk 33; versionCode 1; versionName "1.0" }
+          }
+          dependencies {
+              implementation 'androidx.core:core-ktx:1.9.0'
+              implementation 'androidx.appcompat:appcompat:1.6.0'
+          }
+          EOF
+
+          gradle wrapper --gradle-version 7.5
           ./gradlew assembleDebug
       - uses: actions/upload-artifact@v4
         with:
