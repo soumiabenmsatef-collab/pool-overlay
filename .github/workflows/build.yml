@@ -22,32 +22,65 @@ jobs:
         with:
           accept-android-sdk-licenses: true
 
-      - name: Create Project Folders
+      - name: Create Project Structure
         run: |
           mkdir -p app/src/main/java/com/example/pooloverlay
           mkdir -p app/src/main/res
 
-      - name: Move Kotlin and Manifest Files
+      - name: Move Source Files
         run: |
           if [ -f MainActivity.kt ]; then mv MainActivity.kt app/src/main/java/com/example/pooloverlay/; fi
           if [ -f FloatingService.kt ]; then mv FloatingService.kt app/src/main/java/com/example/pooloverlay/; fi
           if [ -f OverlayView.kt ]; then mv OverlayView.kt app/src/main/java/com/example/pooloverlay/; fi
           if [ -f AndroidManifest.xml ]; then mv AndroidManifest.xml app/src/main/res/; fi
 
-      - name: Create Simple build.gradle
+      - name: Write Gradle Configuration Files
         run: |
-          echo "plugins { id 'com.android.application' id 'org.jetbrains.kotlin.android' }" > app/build.gradle
-          echo "android { namespace 'com.example.pooloverlay' compileSdk 34 defaultConfig { applicationId 'com.example.pooloverlay' minSdk 24 targetSdk 34 versionCode 1 versionName '1.0' } compileOptions { sourceCompatibility JavaVersion.VERSION_17 targetCompatibility JavaVersion.VERSION_17 } }" >> app/build.gradle
-          echo "dependencies { implementation 'androidx.core:core-ktx:1.12.0' implementation 'androidx.appcompat:appcompat:1.6.1' implementation 'com.google.android.material:material:1.9.0' }" >> app/build.gradle
+          cat << 'EOF' > settings.gradle
+          include ':app'
+          rootProject.name = 'PoolOverlay'
+          EOF
 
-          echo "include ':app'" > settings.gradle
-          echo "rootProject.name = 'PoolOverlay'" >> settings.gradle
+          cat << 'EOF' > app/build.gradle
+          plugins {
+              id 'com.android.application'
+              id 'org.jetbrains.kotlin.android'
+          }
 
-      - name: Build with Gradle
+          android {
+              namespace 'com.example.pooloverlay'
+              compileSdk 34
+
+              defaultConfig {
+                  applicationId "com.example.pooloverlay"
+                  minSdk 24
+                  targetSdk 34
+                  versionCode 1
+                  versionName "1.0"
+              }
+
+              compileOptions {
+                  sourceCompatibility JavaVersion.VERSION_17
+                  targetCompatibility JavaVersion.VERSION_17
+              }
+
+              kotlinOptions {
+                  jvmTarget = '17'
+              }
+          }
+
+          dependencies {
+              implementation 'androidx.core:core-ktx:1.12.0'
+              implementation 'androidx.appcompat:appcompat:1.6.1'
+              implementation 'com.google.android.material:material:1.9.0'
+          }
+          EOF
+
+      - name: Build APK with Gradle
         run: |
           gradle assembleDebug
 
-      - name: Upload APK
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-debug
